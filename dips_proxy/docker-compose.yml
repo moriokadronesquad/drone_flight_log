@@ -1,0 +1,19 @@
+services:
+  dips-proxy:
+    build: .
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    env_file:
+      - .env
+    volumes:
+      # トークンファイルをホストに永続化
+      - dips-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  dips-data:

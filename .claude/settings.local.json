@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter run:*)",
+      "Bash(mkdir -p /c/Users/toru-/.claude/agent_tool/drone_flight_log/test/features/pilot)",
+      "Bash(mkdir -p /c/Users/toru-/.claude/agent_tool/drone_flight_log/test/features/flight_log)",
+      "Bash(mkdir -p /c/Users/toru-/.claude/agent_tool/drone_flight_log/test/core/services)"
+    ]
+  }
+}
