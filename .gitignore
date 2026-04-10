@@ -85,3 +85,16 @@ pubspec.lock
 build/
 .pub/
 *.lock
+
+# 環境変数ファイル（機密情報保護）
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.egg-info/
+.pytest_cache/
+
+# Claude Code ローカル設定
+.claude/

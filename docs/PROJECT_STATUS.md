@@ -1,6 +1,6 @@
 # ドローンログ × DIPS 2.0 API連携 プロジェクトサマリー
 
-**最終更新**: 2026年4月7日
+**最終更新**: 2026年4月10日
 **ステータス**: ⏸ 一時停止（API利用申請の受理待ち）
 
 ---
@@ -28,12 +28,12 @@
 - OpenID Connect認証フロー、トークン管理、GAS Proxy設計、Flutter画面構成、データモデル、セキュリティ設計、エラーハンドリング、開発スケジュールを記載
 
 ### 2. API利用申請書（Excel）
-- **ファイル**: `docs/DIPS2_Application_v3.xlsx`（最新版を使用すること）
-- 検証環境新規申請 〇、申請日 2026/4/7
-- 接続システム用途: 社内利用
-- API利用有無: 6つすべて〇
-- 黄色セルは記入済み（石川啓の情報）
-- ※古いバージョン（v1, v2）は使わないこと
+- **ファイル**: `docs/DIPS2_Application_v4.xlsx`（最新版を使用すること）
+- 検証環境新規申請 〇、申請日 2026/4/9（v4で再提出済み）
+- 接続システムURL: `https://dronepeak-dips.minato-morioka.jp`
+- リダイレクトURL: `https://dronepeak-dips.minato-morioka.jp/auth/callback`
+- アクセス元IP: 133.125.37.102
+- ※古いバージョン（v1〜v3）は使わないこと
 
 ### 3. 申請ガイド
 - **ファイル**: `docs/DIPS2_Application_Guide.md`
@@ -49,14 +49,27 @@
 
 ## 完了した作業（追加: 2026-04-09）
 
-### 5. FastAPI Proxy 実装（`dips_proxy/`）
+### 5. FastAPI Proxy 実装・デプロイ（`dips_proxy/`）
+
 - **アーキテクチャ変更**: GAS Proxy → さくらVPS (FastAPI) に変更（固定IP要件のため）
 - **ファイル**: `dips_proxy/` ディレクトリ
 - OpenID Connect Authorization Code Flow + PKCE 実装
 - トークン管理（Fernet暗号化ファイルに保管、自動更新）
 - DIPS 2.0 API 6エンドポイントの中継ルーター
 - CORS、ヘルスチェック、Docker Compose 構成
-- テスト12件 全パス
+- **さくらVPS デプロイ完了** (Debian 12, IP: 133.125.37.102)
+- **HTTPS化完了** (Caddy + Let's Encrypt、外部から200 OK確認済み)
+- ドメイン: `dronepeak-dips.minato-morioka.jp` (ムームーDNS)
+- `.env` はダミー値で稼働中（国交省の認証情報待ち）
+
+### 6. 認証コールバック実装・テスト拡充・コード品質改善（2026-04-10）
+
+- **GET /auth/callback 追加**: B案（サーバーサイド完結型）対応。DIPSからのリダイレクトを受信→トークン交換→Flutter Webへリダイレクト
+- `config.py` に `frontend_url` 設定追加（環境変数 `FRONTEND_URL` で上書き可能）
+- **Pythonテスト追加**: `test_auth_callback_get.py` 7テストケース（合計19件）
+- **Flutterテスト追加**: pilot_repository（10件）、validation_service（30+件）、flight_summary_service（9件）
+- **コード品質修正**: `dynamic` 型を適切な型に修正（GoRouter, FlightScheduleData, DailyInspectionData, Map<String, dynamic>, Object?）計7箇所
+- Git初期化、GitHubリモート設定済み
 
 ---
 
@@ -64,7 +77,7 @@
 
 1. 国交省から検証環境用 client_id / client_secret を受領
 2. API設定通知書を受領（機体情報一覧取得API等の詳細仕様はここに記載）
-3. さくらVPSにデプロイ（`.env` に client_id / client_secret を設定、`docker compose up -d`）
+3. さくらVPS `.env` に client_id / client_secret を設定 → `docker compose restart`（デプロイ・HTTPS化は完了済み）
 4. API設定通知書に基づきリクエスト/レスポンス型を確定・更新
 5. Flutter側 DIPS連携画面の実装
 6. 検証環境テスト → 完了報告 → 本番環境移行
